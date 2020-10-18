@@ -1,0 +1,28 @@
+$colorBorder: #f7f7f7;
+$colorText : #61616d;
+$colorHeaderBorderText : #000000;
+$colorHeaderBorder : #d0d0d0;
+
+a{
+  color: $colorText;
+}
+a:visited {
+  color: $colorText;
+}
+table {
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+
+  td {
+    padding: 10px 8px;
+    border-bottom: 3px solid $colorBorder;
+
+  }
+
+  th {
+    color: $colorHeaderBorderText;
+    padding: 10px 8px;
+    border-bottom: 3px solid $colorHeaderBorder;
+  }
+}

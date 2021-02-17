@@ -1,0 +1,83 @@
+$colorBorder: #f7f7f7;
+$colorText: #61616d;
+$colorHeaderBorderText: #000000;
+$colorHeaderBorder: #d0d0d0;
+
+* {
+  font-size: 18px;
+}
+
+*:focus {
+  outline: none !important
+}
+
+a {
+  color: $colorText;
+}
+
+a:visited {
+  color: $colorText;
+}
+
+table {
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+
+  td {
+    padding: 10px 8px;
+    border-bottom: 3px solid $colorBorder;
+    height: 40px;
+
+    &.session-price {
+      width: 15%;
+      min-width: 200px;
+    }
+
+    &.result {
+      text-align: right;
+    }
+  }
+
+  th {
+    color: $colorHeaderBorderText;
+    padding: 10px 8px;
+    border-bottom: 3px solid $colorHeaderBorder;
+  }
+}
+
+.session-price-value {
+  height: 40px;
+  width: 100px;
+  border: none;
+  padding: 0;
+  background: url("../../assets/pen.png") no-repeat right 10px center;
+  background-size: 15px;
+}
+
+.session-price-value:hover {
+  cursor: pointer;
+}
+
+.input-price {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+}
+
+.input-price input {
+  width: 100px;
+  height: auto;
+  margin-right: 4px;
+  border: 1px solid black;
+  border-radius: 2px;
+}
+
+.input-price input:invalid {
+  border: 1px solid red;
+  border-radius: 2px;
+}

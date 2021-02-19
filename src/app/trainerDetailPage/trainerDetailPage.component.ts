@@ -51,7 +51,7 @@ export class TrainerDetailPageComponent implements OnInit {
 
 
   addAltPrice(sessionId: number, altPrice: number, trainerId: number) {
-    if (altPrice > 0) {
+    if (altPrice >= 0) {
       this.dataService.addAlternativePrice(sessionId, altPrice);
       this.sum = this.dataService.getTrainerIncome(trainerId);
     }

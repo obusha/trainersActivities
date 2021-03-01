@@ -1,0 +1,53 @@
+<div>
+  <div>
+    <a routerLink=''>К списку тренеров</a>
+  </div>
+  <div>
+    <h2>Тренер {{trainerName}}</h2>
+  </div>
+  <div>
+    <p>Заработок тренера: {{sum}} руб.&#8399;</p>
+    <p>Ставка в час: {{price}}</p>
+  </div>
+  <div>
+    <table>
+      <thead>
+      <tr>
+        <th>Проведенные тренировки</th>
+        <th>Дата</th>
+        <th>Время</th>
+        <th>Продолжительность, час</th>
+        <th>Стоимость, рублей</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let session of trainerSessions">
+        <td>{{session.name}}</td>
+        <td>{{session.date}}</td>
+        <td>{{session.time}}</td>
+        <td>{{session.trainingTime}}</td>
+        <td class="session-price">
+          <button class="session-price-value" title="Изменить стоимость тренировки"
+                  [hidden]="focus && idSession == session.id"
+                  (click)="addFocus(session.id)"
+          >{{session.altPrice ? session.altPrice * session.trainingTime : price * session.trainingTime}}
+          </button>
+          <div *ngIf="focus && session.id == idSession" class="input-price">
+            <input autofocus type="number" min="0" #inputPrice
+                   autocomplete="off"
+                   [value]="session.altPrice ? session.altPrice: price"
+                   [id]="session.id"
+                   (blur)="addAltPrice($event.target.id, $event.target.value, id)"
+                   pattern="[0-9]"
+            />
+            <p>
+              x {{session.trainingTime}}
+            </p>
+          </div>
+
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

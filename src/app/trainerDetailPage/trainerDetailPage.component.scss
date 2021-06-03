@@ -4,6 +4,7 @@ $colorHeaderBorderText: #000000;
 $colorHeaderBorder: #d0d0d0;
 
 * {
+  font-family: 'Comfortaa', cursive;
   font-size: 18px;
 }
 
@@ -46,6 +47,14 @@ table {
   }
 }
 
+.trainer-detail-page {
+  width: 100%;
+}
+
+.trainer-detail-page > div {
+  width: 100%;
+}
+
 .session-price-value {
   height: 40px;
   width: 100px;
@@ -55,8 +64,48 @@ table {
   background-size: 15px;
 }
 
-.session-price-value:hover {
+.trainer-name, .trainer-price {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.trainer-name-button-edit {
+  height: 40px;
+  width: auto;
+  border: none;
+  padding: 0 30px 0 8px;
+  margin: 0;
+  text-align: left;
+
+  background: url("../../assets/pen.png") no-repeat right 10px center;
+  background-size: 15px;
+}
+
+.session-price-value:hover, .trainer-name-button-edit:hover {
   cursor: pointer;
+}
+
+.input-data-trainer {
+  width: 20%;
+  padding: 0;
+  margin: 0 4px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 40px;
+}
+
+.trainer-price {
+  input {
+    width: 100px;
+  }
+  button {
+    text-align: left;
+    width: auto;
+    padding: 0 30px 0 6px;
+  }
+
 }
 
 .input-price {

@@ -1,13 +1,45 @@
-<div>
+<div class="trainer-detail-page">
   <div>
     <a routerLink=''>К списку тренеров</a>
   </div>
-  <div>
-    <h2>Тренер {{trainerName}}</h2>
+  <div class="trainer-name">
+    Тренер <button class="trainer-name-button-edit" title="Изменить ФИО тренера"
+                                          [hidden]="focusName"
+                                          (click)="addFocusName()"
+    >{{trainerName}}
+    </button>
+      <div *ngIf="focusName" class="input-data-trainer">
+        <input autofocus type="text" #inputName
+               autocomplete="off"
+               [value]="trainerName"
+               (blur)="editTrainerName(id, $event.target.value)"
+        />
+      </div>
+
+<!--    <input [value]="trainerName" (blur)="editTrainerName(id, $event.target.value)">-->
   </div>
   <div>
-    <p>Заработок тренера: {{sum}} руб.&#8399;</p>
-    <p>Ставка в час: {{price}}</p>
+    Рабочий период с
+    <input name="startDate" id="start" type="date" [max]="endDate | date: 'yyyy-MM-dd'" [ngModel]="startDate | date: 'yyyy-MM-dd'" (ngModelChange)="setStartDate($event)"/>
+    по
+    <input name="endDate" type="date" [min]="startDate | date: 'yyyy-MM-dd'" [ngModel]="endDate | date: 'yyyy-MM-dd'" (ngModelChange)="setEndDate($event)"/>
+  </div>
+  <div>
+    <p>Заработок тренера: {{sum.toFixed(2)}} руб.&#8399;</p>
+    <div class="trainer-price">Ставка в час: <button class="session-price-value" title="Изменить ставку тренера"
+            [hidden]="focusPrice"
+            (click)="addFocusPrice()"
+    >{{tempPrice}}
+    </button>
+    <div *ngIf="focusPrice" class="input-data-trainer">
+      <input autofocus type="number" min="0" #inputPrice
+             autocomplete="off" (focus)="clearInput($event.target.value)"
+             [value]="tempPrice"
+             (blur)="addPrice($event.target.value, id)"
+             pattern="[0-9]"
+      />
+    </div>
+    </div>
   </div>
   <div>
     <table>
@@ -17,34 +49,39 @@
         <th>Дата</th>
         <th>Время</th>
         <th>Продолжительность, час</th>
+        <th>Посещаемость, человек</th>
         <th>Стоимость, рублей</th>
       </tr>
       </thead>
       <tbody>
       <tr *ngFor="let session of trainerSessions">
         <td>{{session.name}}</td>
-        <td>{{session.date}}</td>
-        <td>{{session.time}}</td>
+        <td>{{session.date | date: 'dd-MM-yyyy'}}</td>
+        <td>{{session.date | date: 'HH:mm'}}</td>
         <td>{{session.trainingTime}}</td>
+        <td>{{session.numberOfVisits}}</td>
         <td class="session-price">
+<!--          <input type="number" min="0" #inputPrice-->
+<!--                 autocomplete="off"-->
+<!--                 [value]="session.altPrice ? session.altPrice : price * session.trainingTime / 60"-->
+<!--                 [id]="session.id"-->
+<!--                 (blur)="addAltPrice($event.target.id, session.date, $event.target.value, id)"-->
+<!--                 pattern="[0-9]"-->
+<!--          />-->
           <button class="session-price-value" title="Изменить стоимость тренировки"
-                  [hidden]="focus && idSession == session.id"
-                  (click)="addFocus(session.id)"
-          >{{session.altPrice ? session.altPrice * session.trainingTime : price * session.trainingTime}}
+                  [hidden]="focusAltPrice && idSession == session.id && dateSession == session.date"
+                  (click)="addFocusAltPrice(session.id, session.date)"
+          >{{session.altPrice ? session.altPrice : (price * session.trainingTime / 60).toFixed(2)}}
           </button>
-          <div *ngIf="focus && session.id == idSession" class="input-price">
-            <input autofocus type="number" min="0" #inputPrice
+          <div *ngIf="focusAltPrice && session.id == idSession && session.date == dateSession" class="input-price">
+            <input autofocus type="number" min="0" #inputAltPrice
                    autocomplete="off"
-                   [value]="session.altPrice ? session.altPrice: price"
+                   [value]="session.altPrice ? session.altPrice: (price * session.trainingTime / 60).toFixed(2)"
                    [id]="session.id"
-                   (blur)="addAltPrice($event.target.id, $event.target.value, id)"
+                   (blur)="addAltPrice($event.target.id, session.date, $event.target.value, id)"
                    pattern="[0-9]"
             />
-            <p>
-              x {{session.trainingTime}}
-            </p>
           </div>
-
         </td>
       </tr>
       </tbody>

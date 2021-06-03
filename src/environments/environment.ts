@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  api_url: 'https://api.ud4.ru/v2/wg/schedule-getWeek',
-  clubId: '83a09b4ee9a04ea586b3e37dd2ea218b'
+  api_url: '',
+  clubId: ''
 };
 
 /*

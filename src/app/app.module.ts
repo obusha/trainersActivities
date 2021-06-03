@@ -3,10 +3,13 @@ import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {ReactiveFormsModule} from '@angular/forms';
-
+import {HttpClientModule} from '@angular/common/http';
 import {AppComponent} from './app.component';
 import {TrainersPageComponent} from './trainersPage/trainersPage.component';
 import {TrainerDetailPageComponent} from './trainerDetailPage/trainerDetailPage.component';
+import {DataService} from './data.service';
+import {StorageService} from './storage.service';
+
 
 
 const appRoutes: Routes = [
@@ -25,9 +28,10 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     RouterModule.forRoot(appRoutes),
-    FormsModule, ReactiveFormsModule
+    FormsModule, ReactiveFormsModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [DataService, StorageService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

@@ -1,17 +1,24 @@
 <div>
+  <div>
+    Рабочий период с
+      <input name="startDate" id="start" type="date" [max]="endDate | date: 'yyyy-MM-dd'" [ngModel]="startDate | date: 'yyyy-MM-dd'" (ngModelChange)="setStartDate($event)"/>
+    по
+    <input name="endDate" type="date" [min]="startDate | date: 'yyyy-MM-dd'" [ngModel]="endDate | date: 'yyyy-MM-dd'" (ngModelChange)="setEndDate($event)"/>
+  </div>
   <table>
     <tr>
       <th>Тренер</th>
-      <th>Должность</th>
+<!--      <th>Должность</th>-->
     </tr>
     <tr *ngFor="let trainer of trainers">
       <td>
-        <a [routerLink]="['details', trainer['id']]"
-           [queryParams]="{'trainerName': trainer['lastName'].concat(' ', trainer['firstName'],' ',trainer['patronymic'])}">
-          {{trainer['lastName']}} {{trainer['firstName']}} {{trainer['patronymic']}}
+        <a [routerLink]="['details', trainer['trainerId']]"
+           [queryParams]="{'trainerName': trainer['trainerName']}"
+        >
+          {{trainer['trainerName']}}
         </a>
       </td>
-      <td>{{trainer['post']}}</td>
+<!--      <td></td>-->
     </tr>
   </table>
 </div>

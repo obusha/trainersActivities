@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  api_url: 'https://api.ud4.ru/v2/wg/schedule-getWeek',
+  clubId: '83a09b4ee9a04ea586b3e37dd2ea218b'
 };
 
 /*

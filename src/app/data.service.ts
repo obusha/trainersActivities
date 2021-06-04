@@ -41,8 +41,6 @@ export class DataService {
     }
     return forkJoin(requestsForPEriod)
       .pipe(map(response => this.getResult(response, startDate, endDate)))
-    // return this.http.post(environment.api_url, {ClubId: environment.clubId,
-    //   BaseDate: datesTraining})
   }
 
   getResult(response, startDate, endDate) {
@@ -50,9 +48,9 @@ export class DataService {
     let trainerList: Trainer[] = [];
     let trainingSessionList: TrainingSession[] = [];
     for (let res of response) {
-      let clubTrainingSessionList = res.result.classes;
+        let clubTrainingSessionList = res.result.classes;
       for (let trainingSession of clubTrainingSessionList) {
-        if (trainingSession.coach) {
+        if (trainingSession.coach && (trainingSession.numberOfVisits > 0)) {
           let trainingStartTime = new Date(trainingSession.startTime)
           if (trainingStartTime >= startDate && trainingStartTime <= endDate){
             trainerList.push({trainerId: trainingSession.coach.id, trainerName: trainingSession.coach.name });

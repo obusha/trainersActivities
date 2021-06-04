@@ -83,7 +83,9 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
   }
 
   clearInput() {
-    this.tempPrice = null;
+    if (this.tempPrice == 0) {
+      this.tempPrice = null;
+    }
   }
 
   addFocusAltPrice(sessionId: number, sessionDate: Date) {

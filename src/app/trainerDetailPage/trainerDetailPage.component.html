@@ -33,7 +33,7 @@
     </button>
     <div *ngIf="focusPrice" class="input-data-trainer">
       <input autofocus type="number" min="0" #inputPrice
-             autocomplete="off" (focus)="clearInput($event.target.value)"
+             autocomplete="off" (focus)="clearInput()"
              [value]="tempPrice"
              (blur)="addPrice($event.target.value, id)"
              pattern="[0-9]"
@@ -48,7 +48,7 @@
         <th>Проведенные тренировки</th>
         <th>Дата</th>
         <th>Время</th>
-        <th>Продолжительность, час</th>
+        <th>Продолжительность, мин</th>
         <th>Посещаемость, человек</th>
         <th>Стоимость, рублей</th>
       </tr>

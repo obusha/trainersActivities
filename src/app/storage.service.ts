@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Trainer, TrainerPrice, TrainingSession} from './data.service';
+import {ClubInfo, Trainer, TrainerPrice, TrainingSession} from './data.service';
 
 @Injectable()
 
@@ -16,39 +16,40 @@ export class StorageService {
     let startDate = new Date();
     let endDate = new Date();
     endDate.setDate(0);
-    endDate.setHours(23, 59, 0, 0)
+    endDate.setHours(23, 59, 0, 0);
     startDate.setMonth(endDate.getMonth(), 1);
     startDate.setHours(0, 0, 0, 0);
     this.startDate = new Date(startDate);
     this.endDate = new Date(endDate);
   }
 
-  getStartDate(){
+  getStartDate(): Date {
     return this.startDate;
   }
 
-  getEndDate() {
+  getEndDate(): Date {
     return this.endDate;
   }
 
-  setStartDate(newTime: number) {
+  setStartDate(newTime: number): void {
     this.startDate.setTime(newTime);
   }
 
-  setEndDate(newTime: number) {
+  setEndDate(newTime: number): void {
     this.endDate.setTime(newTime);
   }
 
 
-  setClubTrainingSession(clubTrainingSession: {trainerList: Trainer[], trainingSessionList: TrainingSession[]}) {
+  setClubTrainingSession(clubTrainingSession: ClubInfo): void {
     this.clubTrainingSession = {trainerList: clubTrainingSession.trainerList, trainingSessionList: clubTrainingSession.trainingSessionList};
     if (this.listTrainerPrice.length == 0) {
-      this.setAllTrainerPrice()
+      this.setAllTrainerPrice();
     }
   }
 
-  getTrainerList() {
-    return this.clubTrainingSession.trainerList.sort((prev, next) => {
+  getTrainerList(): Trainer[] {
+    return this.clubTrainingSession.trainerList
+      .sort((prev: Trainer, next: Trainer) => {
       if (prev.trainerName < next.trainerName) {
         return -1;
       }
@@ -59,8 +60,9 @@ export class StorageService {
     })
   }
 
-  getTrainerSessions(trainerId: string): any[] {
-    return this.clubTrainingSession.trainingSessionList.filter((session) => session.trainerId == trainerId).sort((prev, next) => {
+  getTrainerSessions(trainerId: string): TrainingSession[] {
+    return this.clubTrainingSession.trainingSessionList.filter((session: TrainingSession) => session.trainerId == trainerId)
+      .sort((prev: TrainingSession, next: TrainingSession) => {
       if (prev.date < next.date) {
         return -1;
       }
@@ -71,68 +73,64 @@ export class StorageService {
     });
   }
 
-  setAllTrainerPrice() {
-    // this.listTrainerPrice = trainerPriceList;
+  setAllTrainerPrice(): void {
     for (let trainer of this.clubTrainingSession.trainerList) {
-      this.listTrainerPrice.push({trainerId: trainer.trainerId, price: 0})
+      this.listTrainerPrice.push({trainerId: trainer.trainerId, price: 0});
     }
   }
 
-  setTrainerPrice(trainerId: string, newPrice: number) {
-    this.listTrainerPrice.forEach(elem => {
+  setTrainerPrice(trainerId: string, newPrice: number): void {
+    this.listTrainerPrice.forEach((elem: TrainerPrice) => {
       if (elem.trainerId == trainerId) {
         elem.price = newPrice;
       }
     })
   }
 
-
   getTrainerPrice(trainerId: string): number {
-    let trainerPrice = this.listTrainerPrice.filter((price) => price.trainerId == trainerId);
-    console.log('price',trainerPrice[0].price)
+    let trainerPrice = this.listTrainerPrice.filter((price: TrainerPrice) => price.trainerId == trainerId);
       return trainerPrice[0].price;
   }
 
-  setNewNameTrainer(trainerId: string, newName: string) {
-    this.clubTrainingSession.trainerList.forEach(trainer => {
+  setNewNameTrainer(trainerId: string, newName: string): void {
+    this.clubTrainingSession.trainerList.forEach((trainer: Trainer) => {
       if (trainer.trainerId == trainerId) {
         trainer.trainerName = newName;
       }
     })
   }
 
-  findDatesWorkPeriod(startDate: Date, endDate: Date) {
-    let tempDate = new Date(endDate);
-    let day = tempDate.getDay()
+  findDatesWorkPeriod(startDate: Date, endDate: Date): string[] {
+    let tempDate: Date = new Date(endDate);
+    let day: number = tempDate.getDay();
     if (day != 0) {
-      tempDate.setDate(tempDate.getDate() + (7 - day))
+      tempDate.setDate(tempDate.getDate() + (7 - day));
     }
-    let datesTraining = []
+    let datesTraining: string[] = [];
     while (tempDate > startDate) {
-      datesTraining.push(tempDate.toISOString())
-      tempDate.setDate(tempDate.getDate() - 7)
+      datesTraining.push(tempDate.toISOString());
+      tempDate.setDate(tempDate.getDate() - 7);
     }
-    return datesTraining
+    return datesTraining;
   }
 
   getTrainerIncome(trainerId: string): number {
     let sum: number = 0;
     let price: number = this.getTrainerPrice(trainerId);
-    let trainerSessions: any[] = this.getTrainerSessions(trainerId);
+    let trainerSessions: TrainingSession[] = this.getTrainerSessions(trainerId);
     for (let session of trainerSessions) {
-      let session_price = session.altPrice ? session.altPrice : price;
+      let session_price: number = session.altPrice ? session.altPrice : price;
       sum += session.trainingTime / 60 * session_price;
     }
     return sum;
   }
 
   addAlternativePrice(trainingSessionId: string, dateTrainingSession: Date, altPrice: number): void {
-    this.clubTrainingSession.trainingSessionList.forEach(trainingSession => {
+    this.clubTrainingSession.trainingSessionList.forEach((trainingSession: TrainingSession) => {
       if (trainingSession.id == trainingSessionId && trainingSession.date == dateTrainingSession) {
         trainingSession.altPrice = altPrice;
       }
     })
-    // trainingSessionList[trainingSessionId]['altPrice'] = altPrice;
   }
 
   clearData() {

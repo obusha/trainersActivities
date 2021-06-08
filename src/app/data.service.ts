@@ -1,11 +1,10 @@
 import {Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {environment} from '../environments/environment';
-import {forkJoin} from 'rxjs';
+import {forkJoin, Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 export interface TrainerPrice {
-  // id: string;
   trainerId: string;
   price: number;
 }
@@ -25,26 +24,27 @@ export interface TrainingSession {
   altPrice: number;
 }
 
+export interface ClubInfo {
+  trainerList: Trainer[];
+  trainingSessionList: TrainingSession[];
+}
+
 @Injectable()
 export class DataService {
 
-  data: any;
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient) {}
 
-  }
-
-  getData(datesTraining: string[], startDate: Date, endDate: Date){
-    let requestsForPEriod = []
+  getData(datesTraining: string[], startDate: Date, endDate: Date, trainerId?: string): Observable<ClubInfo> {
+    let requestsForPeriod: Observable<any>[] = [];
     for (let date of datesTraining) {
-      requestsForPEriod.push(this.http.post(environment.api_url, {ClubId: environment.clubId,
-        BaseDate: date}));
+      requestsForPeriod.push(this.http.post(environment.api_url, {ClubId: environment.clubId, BaseDate: date}));
     }
-    return forkJoin(requestsForPEriod)
-      .pipe(map(response => this.getResult(response, startDate, endDate)))
+    return forkJoin(requestsForPeriod)
+      .pipe(map(response => this.getResult(response, startDate, endDate, trainerId)))
   }
 
-  getResult(response, startDate, endDate) {
-    console.log(response)
+  getResult(response: any[], startDate: Date, endDate: Date, trainerId?: string): ClubInfo {
+    console.log('type', typeof response)
     let trainerList: Trainer[] = [];
     let trainingSessionList: TrainingSession[] = [];
     for (let res of response) {
@@ -52,24 +52,40 @@ export class DataService {
       for (let trainingSession of clubTrainingSessionList) {
         if (trainingSession.coach && (trainingSession.numberOfVisits > 0)) {
           let trainingStartTime = new Date(trainingSession.startTime)
-          if (trainingStartTime >= startDate && trainingStartTime <= endDate){
-            trainerList.push({trainerId: trainingSession.coach.id, trainerName: trainingSession.coach.name });
-            trainingSessionList.push( {
-              id: trainingSession.course.id,
-              name: trainingSession.course.name,
-              trainerId: trainingSession.coach.id,
-              date: trainingStartTime,
-              trainingTime: (trainingSession.duration),
-              numberOfVisits: trainingSession.numberOfVisits,
-              altPrice: null
-            })
+          if (trainingStartTime >= startDate && trainingStartTime <= endDate) {
+            if (trainerId) {
+              if (trainerId == trainingSession.coach.id) {
+                trainingSessionList.push( {
+                  id: trainingSession.course.id,
+                  name: trainingSession.course.name,
+                  trainerId: trainingSession.coach.id,
+                  date: trainingStartTime,
+                  trainingTime: (trainingSession.duration),
+                  numberOfVisits: trainingSession.numberOfVisits,
+                  altPrice: null
+                })
+              }
+            }
+            else {
+              trainerList.push({trainerId: trainingSession.coach.id, trainerName: trainingSession.coach.name });
+              trainingSessionList.push( {
+                id: trainingSession.course.id,
+                name: trainingSession.course.name,
+                trainerId: trainingSession.coach.id,
+                date: trainingStartTime,
+                trainingTime: (trainingSession.duration),
+                numberOfVisits: trainingSession.numberOfVisits,
+                altPrice: null
+              })
+            }
           }
         }
       }
-
     }
-    trainerList = trainerList.filter((trainer, index, self) =>
-      index === self.findIndex((id) => (id.trainerId === trainer.trainerId)))
+    if (!trainerId) {
+      trainerList = trainerList.filter((trainer, index, self) =>
+        index === self.findIndex((id) => (id.trainerId === trainer.trainerId)))
+    }
     return { trainerList, trainingSessionList }
   }
 }

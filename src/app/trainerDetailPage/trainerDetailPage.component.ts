@@ -1,6 +1,6 @@
 import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {DataService} from '../data.service';
+import {DataService, TrainingSession} from '../data.service';
 import {Subscription} from 'rxjs';
 import {StorageService} from '../storage.service';
 
@@ -17,12 +17,12 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
   @ViewChild('inputPrice') inputPrice: ElementRef;
   @ViewChild('inputName') inputName: ElementRef;
 
-  trainerSessions: any[];
+  trainerSessions: TrainingSession[];
   price: number;
   sessionPrice: number;
   sum: number;
   id: string;
-  idSession: number;
+  idSession: string;
   dateSession: Date;
   trainerName: string;
   altPrice: number;
@@ -87,7 +87,7 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  addFocusAltPrice(sessionId: number, sessionDate: Date): void {
+  addFocusAltPrice(sessionId: string, sessionDate: Date): void {
     this.idSession = sessionId;
     this.dateSession = sessionDate;
     this.focusAltPrice = true;
@@ -112,42 +112,55 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
 
   setStartDate(newDate: string): void  {
     this.startDate = new Date(newDate);
-    this.storageService.clearData();
-    this.updateTrainingSessionList(this.startDate, this.storageService.getEndDate());
+    console.log('1',this.trainerSessions)
+    this.trainerSessions.length = 0;
+    console.log('2', this.trainerSessions)
+    // this.storageService.clearData();
+    this.updateTrainingSessionList(this.startDate, this.storageService.getEndDate(), this.id);
 
   }
 
   setEndDate(newDate: string): void  {
     this.endDate = new Date(newDate);
     this.endDate.setHours(23, 59, 0, 0);
-    this.storageService.clearData();
-    this.updateTrainingSessionList(this.storageService.getStartDate(), this.endDate);
+    // this.storageService.clearData();
+    this.updateTrainingSessionList(this.storageService.getStartDate(), this.endDate, this.id);
   }
 
-  updateTrainingSessionList(startDate: Date, endDate: Date): void {
-    this.trainerSessions = this.storageService.getTrainerSessions(this.id);
-
-    if (this.trainerSessions.length == 0) {
-      let datesTraining = this.storageService.findDatesWorkPeriod(startDate, endDate);
-      this.apiSubscription = this.dataService.getData(datesTraining, startDate, endDate).subscribe((res: any) => {
-        this.storageService.setClubTrainingSession(res);
-        this.trainerSessions = this.storageService.getTrainerSessions(this.id);
-        this.price = this.storageService.getTrainerPrice(this.id);
+  updateTrainingSessionList(startDate: Date, endDate: Date, trainerId?: string): void {
+    let trainerSessions = this.storageService.getTrainerSessions(this.id);
+    let datesTraining = this.storageService.findDatesWorkPeriod(startDate, endDate);
+    if (trainerId) {
+      this.apiSubscription = this.dataService.getDataForOneTrainer(datesTraining, startDate, endDate, trainerId)
+        .subscribe((res: TrainingSession[]) => {
+        this.trainerSessions = res;
+          this.price = this.storageService.getTrainerPrice(this.id);
+          this.tempPrice = this.price;
+          this.sum = this.storageService.getTrainerIncome(this.id);
+      })
+    }
+    else
+      if (trainerSessions.length == 0) {
+        this.apiSubscription = this.dataService.getData(datesTraining, startDate, endDate).subscribe((res: any) => {
+          this.storageService.setClubTrainingSession(res);
+          this.trainerSessions = this.storageService.getTrainerSessions(this.id);
+          this.price = this.storageService.getTrainerPrice(this.id);
+          this.tempPrice = this.price;
+          this.sum = this.storageService.getTrainerIncome(this.id);
+        });
+      }
+      else {
+        this.trainerSessions = trainerSessions;
+        this.price = this.storageService.getTrainerPrice(this.id)
         this.tempPrice = this.price;
         this.sum = this.storageService.getTrainerIncome(this.id);
-      });
-
     }
-    else {
-      this.price = this.storageService.getTrainerPrice(this.id)
-      this.tempPrice = this.price;
-      this.sum = this.storageService.getTrainerIncome(this.id);
-    }
-
   }
+
   editTrainerName(id:string, name: string): void {
     if (name) {
       this.storageService.setNewNameTrainer(id, name);
+      this.trainerName = name;
     }
     this.focusName = false;
   }

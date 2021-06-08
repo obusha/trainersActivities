@@ -45,11 +45,14 @@ export class TrainersPageComponent implements OnInit, OnDestroy {
   }
 
   updateTrainersInfo(startDate: Date, endDate: Date): void {
-    this.storageService.clearData();
-    let datesTraining = this.storageService.findDatesWorkPeriod(startDate, endDate);
-    this.apiSubscription = this.dataService.getData(datesTraining, startDate, endDate).subscribe((res: any) => {
-      this.storageService.setClubTrainingSession(res);
-      this.trainers = this.storageService.getTrainerList();
-    });
+    // this.storageService.clearData();
+    this.trainers = this.storageService.getTrainerList();
+    if (this.trainers.length == 0) {
+      let datesTraining = this.storageService.findDatesWorkPeriod(startDate, endDate);
+      this.apiSubscription = this.dataService.getData(datesTraining, startDate, endDate).subscribe((res: any) => {
+        this.storageService.setClubTrainingSession(res);
+        this.trainers = this.storageService.getTrainerList();
+      });
+    }
   }
 }

@@ -15,9 +15,8 @@
                (blur)="editTrainerName(id, $event.target.value)"
         />
       </div>
-
-<!--    <input [value]="trainerName" (blur)="editTrainerName(id, $event.target.value)">-->
   </div>
+
   <div>
     Рабочий период с
     <input name="startDate" id="start" type="date" [max]="endDate | date: 'yyyy-MM-dd'" [ngModel]="startDate | date: 'yyyy-MM-dd'" (ngModelChange)="setStartDate($event)"/>

@@ -34,39 +34,64 @@ export class DataService {
 
   constructor(private http: HttpClient) {}
 
-  getData(datesTraining: string[], startDate: Date, endDate: Date, trainerId?: string): Observable<ClubInfo> {
+  getRequestsForPeriod(datesTraining: string[]): Observable<any>[] {
     let requestsForPeriod: Observable<any>[] = [];
     for (let date of datesTraining) {
       requestsForPeriod.push(this.http.post(environment.api_url, {ClubId: environment.clubId, BaseDate: date}));
     }
-    return forkJoin(requestsForPeriod)
-      .pipe(map(response => this.getResult(response, startDate, endDate, trainerId)))
+    return requestsForPeriod
   }
 
-  getResult(response: any[], startDate: Date, endDate: Date, trainerId?: string): ClubInfo {
-    console.log('type', typeof response)
+  getData(datesTraining: string[], startDate: Date, endDate: Date): Observable<ClubInfo> {
+    return forkJoin(this.getRequestsForPeriod(datesTraining))
+      .pipe(map(response => this.getResult(response, startDate, endDate)))
+
+  }
+
+  getDataForOneTrainer(datesTraining: string[], startDate: Date, endDate: Date, trainerId: string): Observable<TrainingSession[]> {
+    return forkJoin(this.getRequestsForPeriod(datesTraining))
+      .pipe(map(response => this.getResultForOneTrainer(response, startDate, endDate, trainerId)))
+  }
+
+  getResultForOneTrainer(response: any[], startDate: Date, endDate: Date, trainerId: string): TrainingSession[] {
+    let trainingSessionList: TrainingSession[] = [];
+    for (let res of response) {
+      for (let trainingSession of res.result.classes) {
+        if (trainingSession.coach && trainerId == trainingSession.coach.id && (trainingSession.numberOfVisits > 0)) {
+          let trainingStartTime = new Date(trainingSession.startTime)
+          if (trainingStartTime >= startDate && trainingStartTime <= endDate) {
+            trainingSessionList.push({
+              id: trainingSession.course.id,
+              name: trainingSession.course.name,
+              trainerId: trainingSession.coach.id,
+              date: trainingStartTime,
+              trainingTime: (trainingSession.duration),
+              numberOfVisits: trainingSession.numberOfVisits,
+              altPrice: null
+            })
+          }
+        }
+      }
+    }
+    return trainingSessionList.sort((prev: TrainingSession, next: TrainingSession) => {
+      if (prev.date < next.date) {
+        return -1;
+      }
+      if (prev.date > next.date) {
+        return 1;
+      }
+      return 0;
+    });
+  }
+
+  getResult(response: any[], startDate: Date, endDate: Date): ClubInfo {
     let trainerList: Trainer[] = [];
     let trainingSessionList: TrainingSession[] = [];
     for (let res of response) {
-        let clubTrainingSessionList = res.result.classes;
-      for (let trainingSession of clubTrainingSessionList) {
+      for (let trainingSession of res.result.classes) {
         if (trainingSession.coach && (trainingSession.numberOfVisits > 0)) {
           let trainingStartTime = new Date(trainingSession.startTime)
           if (trainingStartTime >= startDate && trainingStartTime <= endDate) {
-            if (trainerId) {
-              if (trainerId == trainingSession.coach.id) {
-                trainingSessionList.push( {
-                  id: trainingSession.course.id,
-                  name: trainingSession.course.name,
-                  trainerId: trainingSession.coach.id,
-                  date: trainingStartTime,
-                  trainingTime: (trainingSession.duration),
-                  numberOfVisits: trainingSession.numberOfVisits,
-                  altPrice: null
-                })
-              }
-            }
-            else {
               trainerList.push({trainerId: trainingSession.coach.id, trainerName: trainingSession.coach.name });
               trainingSessionList.push( {
                 id: trainingSession.course.id,
@@ -77,15 +102,12 @@ export class DataService {
                 numberOfVisits: trainingSession.numberOfVisits,
                 altPrice: null
               })
-            }
           }
         }
       }
     }
-    if (!trainerId) {
-      trainerList = trainerList.filter((trainer, index, self) =>
-        index === self.findIndex((id) => (id.trainerId === trainer.trainerId)))
-    }
+    trainerList = trainerList.filter((trainer, index, self) =>
+      index === self.findIndex((id) => (id.trainerId === trainer.trainerId)))
     return { trainerList, trainingSessionList }
   }
 }

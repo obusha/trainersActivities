@@ -71,11 +71,10 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
 
   }
 
-  addPrice(price: number, trainerId: string) {
+  addPrice(price: number, trainerId: string): void {
     if (price && price >= 0) {
       this.storageService.setTrainerPrice(trainerId, price);
       this.price = this.storageService.getTrainerPrice(trainerId);
-
       this.sum = this.storageService.getTrainerIncome(trainerId);
     }
     this.tempPrice = this.price;
@@ -88,48 +87,44 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  addFocusAltPrice(sessionId: number, sessionDate: Date) {
+  addFocusAltPrice(sessionId: number, sessionDate: Date): void {
     this.idSession = sessionId;
     this.dateSession = sessionDate;
-    console.log(this.idSession);
     this.focusAltPrice = true;
     setTimeout(() => {
       this.inputAltPrice.nativeElement.focus();
     }, 0);
   }
 
-  addFocusPrice() {
+  addFocusPrice(): void {
     this.focusPrice = true;
     setTimeout(() => {
       this.inputPrice.nativeElement.focus();
     }, 0);
   }
 
-  addFocusName() {
+  addFocusName(): void  {
     this.focusName = true;
     setTimeout(() => {
       this.inputName.nativeElement.focus();
     }, 0);
   }
 
-  setStartDate(newDate) {
-    // let newStartData = new Date(newDate);
+  setStartDate(newDate: string): void  {
     this.startDate = new Date(newDate);
-    // this.storageService.setStartDate(newStartData.getTime());
     this.storageService.clearData();
     this.updateTrainingSessionList(this.startDate, this.storageService.getEndDate());
 
   }
 
-  setEndDate(newDate) {
+  setEndDate(newDate: string): void  {
     this.endDate = new Date(newDate);
     this.endDate.setHours(23, 59, 0, 0);
-    // this.storageService.setEndDate(newEndDate.getTime());
     this.storageService.clearData();
     this.updateTrainingSessionList(this.storageService.getStartDate(), this.endDate);
   }
 
-  updateTrainingSessionList(startDate: Date, endDate: Date) {
+  updateTrainingSessionList(startDate: Date, endDate: Date): void {
     this.trainerSessions = this.storageService.getTrainerSessions(this.id);
 
     if (this.trainerSessions.length == 0) {
@@ -150,14 +145,14 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
     }
 
   }
-  editTrainerName(id:string, name: string) {
+  editTrainerName(id:string, name: string): void {
     if (name) {
       this.storageService.setNewNameTrainer(id, name);
     }
     this.focusName = false;
   }
 
-  addAltPrice(sessionId: string, dateTrainingSession: Date, altPrice: number, trainerId: string) {
+  addAltPrice(sessionId: string, dateTrainingSession: Date, altPrice: number, trainerId: string): void {
     if (altPrice >= 0) {
       this.storageService.addAlternativePrice(sessionId, dateTrainingSession, altPrice);
       this.sum = this.storageService.getTrainerIncome(trainerId);

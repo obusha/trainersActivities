@@ -82,7 +82,7 @@ export class StorageService {
   setTrainerPrice(trainerId: string, newPrice: number): void {
     this.listTrainerPrice.forEach((elem: TrainerPrice) => {
       if (elem.trainerId == trainerId) {
-        elem.price = newPrice;
+        elem.price = +newPrice.toFixed(2);
       }
     })
   }
@@ -95,7 +95,7 @@ export class StorageService {
   setNewNameTrainer(trainerId: string, newName: string): void {
     this.clubTrainingSession.trainerList.forEach((trainer: Trainer) => {
       if (trainer.trainerId == trainerId) {
-        trainer.trainerName = newName;
+        trainer.trainerName = newName.trim();
       }
     })
   }
@@ -114,16 +114,16 @@ export class StorageService {
     return datesTraining;
   }
 
-  getTrainerIncome(trainerId: string): number {
-    let sum: number = 0;
-    let price: number = this.getTrainerPrice(trainerId);
-    let trainerSessions: TrainingSession[] = this.getTrainerSessions(trainerId);
-    for (let session of trainerSessions) {
-      let session_price: number = session.altPrice ? session.altPrice : price;
-      sum += session.trainingTime / 60 * session_price;
-    }
-    return sum;
-  }
+  // getTrainerIncome(trainerId: string): number {
+  //   let sum: number = 0;
+  //   let price: number = this.getTrainerPrice(trainerId);
+  //   let trainerSessions: TrainingSession[] = this.getTrainerSessions(trainerId);
+  //   for (let session of trainerSessions) {
+  //     let session_price: number = session.altPrice ? session.altPrice : price;
+  //     sum += session.trainingTime / 60 * session_price;
+  //   }
+  //   return sum;
+  // }
 
   addAlternativePrice(trainingSessionId: string, dateTrainingSession: Date, altPrice: number): void {
     this.clubTrainingSession.trainingSessionList.forEach((trainingSession: TrainingSession) => {

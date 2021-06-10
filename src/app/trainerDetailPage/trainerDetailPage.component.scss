@@ -4,20 +4,20 @@ $colorHeaderBorderText: #000000;
 $colorHeaderBorder: #d0d0d0;
 
 * {
-  font-family: 'Comfortaa', cursive;
-  font-size: 18px;
-}
-
-*:focus {
-  outline: none !important
+  font: {
+    family: 'Comfortaa', cursive;
+    size: 18px;
+  }
+  &:focus {
+    outline: none !important
+  }
 }
 
 a {
   color: $colorText;
-}
-
-a:visited {
-  color: $colorText;
+  &:visited {
+    color: $colorText;
+  }
 }
 
 
@@ -48,6 +48,41 @@ table {
   }
 }
 
+.trainer-name, .trainer-price {
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  & input {
+    text-align: right;
+    margin-left: 4px;
+    padding-right: 25px;
+    border: none;
+    background: url("../../assets/pen.png") no-repeat right 5px center;
+    background-size: 15px;
+    &:hover {
+      cursor: pointer;
+    }
+    &:focus {
+      background: none;
+      border: 1px solid black;
+      border-radius: 2px;
+      cursor: auto;
+    }
+    &:invalid {
+      border: 2px solid #e60000;
+      border-radius: 4px;
+    }
+  }
+
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .trainer-detail-page {
   width: 100%;
 }
@@ -58,14 +93,14 @@ table {
 
 .session-price-value {
   height: 40px;
-  width: 100px;
+  width: 120px;
   border: none;
   padding: 0;
   background: url("../../assets/pen.png") no-repeat right 10px center;
   background-size: 15px;
 }
 
-.trainer-name, .trainer-price {
+.trainer-price {
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -126,8 +161,13 @@ table {
   border: 1px solid black;
   border-radius: 2px;
 }
-
 .input-price input:invalid {
-  border: 1px solid red;
-  border-radius: 2px;
+  border: 2px solid #e60000;
+  border-radius: 4px;
 }
+
+input:invalid {
+  border: 2px solid #e60000;
+  border-radius: 4px;
+}
+

@@ -112,11 +112,14 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
       this.endDate.setHours(23, 59, 0, 0);
       this.updateTrainingSessionList(this.storageService.getStartDate(), this.endDate, this.id);
     }
+
   }
 
   updateTrainingSessionList(startDate: Date, endDate: Date, trainerId?: string): void {
     let trainerSessions = this.storageService.getTrainerSessions(this.id);
+
     this.noDataFlag = false;
+
     let datesTraining = this.storageService.findDatesWorkPeriod(startDate, endDate);
     if (trainerId) {
       this.apiSubscription = this.dataService.getDataForOneTrainer(datesTraining, startDate, endDate, trainerId)
@@ -150,6 +153,7 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
       this.storageService.setNewNameTrainer(id, name.trim());
       this.trainerName = name.trim();
       this.widthName = ((this.trainerName.length + 2) * 11) + 'px'
+
     }
     this.inputName.nativeElement.value = this.trainerName
   }

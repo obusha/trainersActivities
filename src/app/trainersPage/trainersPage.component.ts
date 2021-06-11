@@ -51,7 +51,9 @@ export class TrainersPageComponent implements OnInit, OnDestroy {
 
   updateTrainersInfo(startDate: Date, endDate: Date): void {
     // this.storageService.clearData();
+
     this.noDataFlag = false;
+
     this.trainers = this.storageService.getTrainerList();
     if (this.trainers.length == 0) {
       let datesTraining = this.storageService.findDatesWorkPeriod(startDate, endDate);
@@ -60,6 +62,7 @@ export class TrainersPageComponent implements OnInit, OnDestroy {
         this.trainers = this.storageService.getTrainerList();
         this.noDataFlag = (this.trainers.length == 0);
       }, error => {this.error = error.message; alert('Ошибка при получении данных с сервера! Обратитесь к Вашему системному администратору.')});
+
     }
   }
 }

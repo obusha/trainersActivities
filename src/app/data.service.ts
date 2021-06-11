@@ -92,7 +92,7 @@ export class DataService {
         if (trainingSession.coach && (trainingSession.numberOfVisits > 0)) {
           let trainingStartTime = new Date(trainingSession.startTime)
           if (trainingStartTime >= startDate && trainingStartTime <= endDate) {
-              trainerList.push({trainerId: trainingSession.coach.id, trainerName: trainingSession.coach.name });
+              trainerList.push({trainerId: trainingSession.coach.id, trainerName: trainingSession.coach.name.trim() });
               trainingSessionList.push( {
                 id: trainingSession.course.id,
                 name: trainingSession.course.name,

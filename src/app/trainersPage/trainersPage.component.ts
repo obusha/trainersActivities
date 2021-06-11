@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import { DataService } from '../data.service';
+import {DataService} from '../data.service';
 import {StorageService} from '../storage.service';
 import {Subscription} from 'rxjs';
 
@@ -12,10 +12,14 @@ import {Subscription} from 'rxjs';
 
 export class TrainersPageComponent implements OnInit, OnDestroy {
   trainers: any;
+  error: any;
+  noDataFlag: boolean;
   startDate: Date;
   endDate: Date;
   private apiSubscription: Subscription;
-  constructor(private dataService: DataService, private storageService: StorageService) {}
+  constructor(private dataService: DataService, private storageService: StorageService) {
+    this.noDataFlag = false;
+  }
 
   ngOnInit(){
     this.startDate = this.storageService.getStartDate();
@@ -44,15 +48,21 @@ export class TrainersPageComponent implements OnInit, OnDestroy {
     this.updateTrainersInfo(this.storageService.getStartDate(), this.endDate);
   }
 
+
   updateTrainersInfo(startDate: Date, endDate: Date): void {
     // this.storageService.clearData();
+
+    this.noDataFlag = false;
+
     this.trainers = this.storageService.getTrainerList();
     if (this.trainers.length == 0) {
       let datesTraining = this.storageService.findDatesWorkPeriod(startDate, endDate);
       this.apiSubscription = this.dataService.getData(datesTraining, startDate, endDate).subscribe((res: any) => {
         this.storageService.setClubTrainingSession(res);
         this.trainers = this.storageService.getTrainerList();
-      });
+        this.noDataFlag = (this.trainers.length == 0);
+      }, error => {this.error = error.message; alert('Ошибка при получении данных с сервера! Обратитесь к Вашему системному администратору.')});
+
     }
   }
 }

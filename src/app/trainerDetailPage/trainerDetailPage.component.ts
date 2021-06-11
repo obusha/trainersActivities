@@ -27,11 +27,14 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
   trainerName: string;
   altPrice: number;
   focusAltPrice: boolean = false;
-  focusPrice: boolean = false;
-  focusName: boolean = false;
   startDate: Date;
   endDate: Date;
-  tempPrice: number;
+  dateNow: number;
+  // tempPrice: number;
+  error: any;
+  noDataFlag: boolean;
+  widthName: string;
+  widthPrice: string;
 
 
 
@@ -47,15 +50,15 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.noDataFlag = false;
+    this.dateNow = Date.now();
     this.sum = 0;
-    this.tempPrice = 0.00;
+    this.price = 0.00;
     this.startDate = this.storageService.getStartDate();
     this.endDate = this.storageService.getEndDate();
     this.updateTrainingSessionList(this.startDate, this.endDate);
-
-    // this.price = this.storageService.getTrainerPrice(this.id)
-    // this.price = this.dataService.getTrainerPrice(this.id)[0]['price'];
-    // this.sum = this.storageService.getTrainerIncome(this.id);
+    this.widthName = ((this.trainerName.length + 2) * 11) + 'px';
+    this.widthPrice = (this.price.toFixed(2).length + 1) * 8 + 'px';
   }
 
   ngOnDestroy() {
@@ -72,19 +75,14 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
   }
 
   addPrice(price: number, trainerId: string): void {
-    if (price && price >= 0) {
-      this.storageService.setTrainerPrice(trainerId, price);
+    if (price && price >= 0 && price <= 10000) {
+      this.storageService.setTrainerPrice(trainerId, +price);
       this.price = this.storageService.getTrainerPrice(trainerId);
-      this.sum = this.storageService.getTrainerIncome(trainerId);
+      this.sum = this.getTrainerIncome(trainerId, this.trainerSessions);
+      this.widthPrice = (this.price.toFixed(2).length + 1) * 8 + 'px';
     }
-    this.tempPrice = this.price;
-    this.focusPrice = false;
-  }
 
-  clearInput() {
-    if (this.tempPrice == 0) {
-      this.tempPrice = null;
-    }
+    this.inputPrice.nativeElement.value = this.price
   }
 
   addFocusAltPrice(sessionId: string, sessionDate: Date): void {
@@ -96,80 +94,85 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
     }, 0);
   }
 
-  addFocusPrice(): void {
-    this.focusPrice = true;
-    setTimeout(() => {
-      this.inputPrice.nativeElement.focus();
-    }, 0);
-  }
-
-  addFocusName(): void  {
-    this.focusName = true;
-    setTimeout(() => {
-      this.inputName.nativeElement.focus();
-    }, 0);
-  }
-
   setStartDate(newDate: string): void  {
-    this.startDate = new Date(newDate);
-    console.log('1',this.trainerSessions)
-    this.trainerSessions.length = 0;
-    console.log('2', this.trainerSessions)
-    // this.storageService.clearData();
-    this.updateTrainingSessionList(this.startDate, this.storageService.getEndDate(), this.id);
-
+    let date: Date = new Date(newDate);
+    let minDate: Date = new Date('2000-01-01');
+    if (date.getTime() > minDate.getTime() && date.getTime() < this.dateNow) {
+      this.startDate = new Date(date);
+      this.trainerSessions.length = 0;
+      this.updateTrainingSessionList(this.startDate, this.storageService.getEndDate(), this.id);
+    }
   }
 
   setEndDate(newDate: string): void  {
-    this.endDate = new Date(newDate);
-    this.endDate.setHours(23, 59, 0, 0);
-    // this.storageService.clearData();
-    this.updateTrainingSessionList(this.storageService.getStartDate(), this.endDate, this.id);
+    let date: Date = new Date(newDate);
+    let minDate: Date = new Date('2000-01-01');
+    if (date.getTime() > minDate.getTime() && date.getTime() < this.dateNow) {
+      this.endDate = new Date(date);
+      this.endDate.setHours(23, 59, 0, 0);
+      this.updateTrainingSessionList(this.storageService.getStartDate(), this.endDate, this.id);
+    }
+
   }
 
   updateTrainingSessionList(startDate: Date, endDate: Date, trainerId?: string): void {
     let trainerSessions = this.storageService.getTrainerSessions(this.id);
+
+    this.noDataFlag = false;
+
     let datesTraining = this.storageService.findDatesWorkPeriod(startDate, endDate);
     if (trainerId) {
       this.apiSubscription = this.dataService.getDataForOneTrainer(datesTraining, startDate, endDate, trainerId)
         .subscribe((res: TrainingSession[]) => {
         this.trainerSessions = res;
           this.price = this.storageService.getTrainerPrice(this.id);
-          this.tempPrice = this.price;
-          this.sum = this.storageService.getTrainerIncome(this.id);
-      })
+          this.sum = this.getTrainerIncome(this.id, this.trainerSessions);
+          this.noDataFlag = (this.trainerSessions.length == 0);
+      }, error => {this.error = error.message})
     }
     else
       if (trainerSessions.length == 0) {
         this.apiSubscription = this.dataService.getData(datesTraining, startDate, endDate).subscribe((res: any) => {
           this.storageService.setClubTrainingSession(res);
           this.trainerSessions = this.storageService.getTrainerSessions(this.id);
+          this.noDataFlag = (this.trainerSessions.length == 0);
           this.price = this.storageService.getTrainerPrice(this.id);
-          this.tempPrice = this.price;
-          this.sum = this.storageService.getTrainerIncome(this.id);
-        });
+          this.sum = this.getTrainerIncome(this.id, this.trainerSessions);
+        }, error => {this.error = error.message});
       }
       else {
         this.trainerSessions = trainerSessions;
         this.price = this.storageService.getTrainerPrice(this.id)
-        this.tempPrice = this.price;
-        this.sum = this.storageService.getTrainerIncome(this.id);
+        this.sum = this.getTrainerIncome(this.id, this.trainerSessions);
     }
   }
 
   editTrainerName(id:string, name: string): void {
-    if (name) {
-      this.storageService.setNewNameTrainer(id, name);
-      this.trainerName = name;
+    if (name && /^[A-Za-zА-Яа-яЁё\s]+$/.test(name)) {
+      console.log(name)
+      this.storageService.setNewNameTrainer(id, name.trim());
+      this.trainerName = name.trim();
+      this.widthName = ((this.trainerName.length + 2) * 11) + 'px'
+
     }
-    this.focusName = false;
+    this.inputName.nativeElement.value = this.trainerName
   }
 
   addAltPrice(sessionId: string, dateTrainingSession: Date, altPrice: number, trainerId: string): void {
-    if (altPrice >= 0) {
-      this.storageService.addAlternativePrice(sessionId, dateTrainingSession, altPrice);
-      this.sum = this.storageService.getTrainerIncome(trainerId);
+    if (altPrice >= 0 && altPrice <= 10000 && /[0-9]/) {
+      this.storageService.addAlternativePrice(sessionId, dateTrainingSession, +altPrice);
+      this.sum = this.getTrainerIncome(trainerId, this.trainerSessions);
     }
     this.focusAltPrice = false;
+  }
+
+  getTrainerIncome(trainerId: string, trainingSession: TrainingSession[]): number {
+    let sum: number = 0;
+    let price: number = this.storageService.getTrainerPrice(trainerId);
+    for (let session of trainingSession) {
+      let session_price: number = session.altPrice ? session.altPrice : (price * session.trainingTime / 60);
+      sum += session_price;
+    }
+    return sum;
   }
 }

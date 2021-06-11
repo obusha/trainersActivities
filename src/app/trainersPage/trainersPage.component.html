@@ -20,6 +20,11 @@
     <tr>
       <th>Тренер</th>
     </tr>
+    <tr *ngIf="noDataFlag">
+      <td>
+        Отсутствуют данные за выбранный период
+      </td>
+    </tr>
     <tr *ngFor="let trainer of trainers">
       <td>
         <a [routerLink]="['details', trainer['trainerId']]"

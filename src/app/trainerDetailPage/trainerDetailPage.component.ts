@@ -15,7 +15,6 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
 
   @ViewChild('inputAltPrice') inputAltPrice: ElementRef;
   @ViewChild('inputPrice') inputPrice: ElementRef;
-  @ViewChild('inputName') inputName: ElementRef;
 
   trainerSessions: TrainingSession[];
   price: number;
@@ -30,8 +29,8 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
   startDate: Date;
   endDate: Date;
   dateNow: number;
-  // tempPrice: number;
   error: any;
+  loadDataFlag: boolean;
   noDataFlag: boolean;
   widthName: string;
   widthPrice: string;
@@ -51,6 +50,7 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.noDataFlag = false;
+    this.loadDataFlag = true;
     this.dateNow = Date.now();
     this.sum = 0;
     this.price = 0.00;
@@ -81,7 +81,9 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
       this.sum = this.getTrainerIncome(trainerId, this.trainerSessions);
       this.widthPrice = (this.price.toFixed(2).length + 1) * 8 + 'px';
     }
-
+    else {
+      alert("Ставка должа быть положительным числом в диапазоне от 0 до 10000.")
+    }
     this.inputPrice.nativeElement.value = this.price
   }
 
@@ -122,48 +124,58 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
 
     let datesTraining = this.storageService.findDatesWorkPeriod(startDate, endDate);
     if (trainerId) {
+      this.loadDataFlag = true;
       this.apiSubscription = this.dataService.getDataForOneTrainer(datesTraining, startDate, endDate, trainerId)
         .subscribe((res: TrainingSession[]) => {
         this.trainerSessions = res;
           this.price = this.storageService.getTrainerPrice(this.id);
           this.sum = this.getTrainerIncome(this.id, this.trainerSessions);
           this.noDataFlag = (this.trainerSessions.length == 0);
+          this.loadDataFlag = false;
       }, error => {this.error = error.message})
     }
     else
       if (trainerSessions.length == 0) {
+        this.loadDataFlag = true;
         this.apiSubscription = this.dataService.getData(datesTraining, startDate, endDate).subscribe((res: any) => {
           this.storageService.setClubTrainingSession(res);
           this.trainerSessions = this.storageService.getTrainerSessions(this.id);
           this.noDataFlag = (this.trainerSessions.length == 0);
           this.price = this.storageService.getTrainerPrice(this.id);
           this.sum = this.getTrainerIncome(this.id, this.trainerSessions);
+          this.loadDataFlag = false;
         }, error => {this.error = error.message});
       }
       else {
         this.trainerSessions = trainerSessions;
         this.price = this.storageService.getTrainerPrice(this.id)
         this.sum = this.getTrainerIncome(this.id, this.trainerSessions);
+        this.loadDataFlag = false;
     }
   }
 
   editTrainerName(id:string, name: string): void {
-    if (name && /^[A-Za-zА-Яа-яЁё\s]+$/.test(name)) {
-      console.log(name)
+    if (name && /^[A-Za-zА-Яа-яЁё\s\-]+$/.test(name)) {
       this.storageService.setNewNameTrainer(id, name.trim());
       this.trainerName = name.trim();
-      this.widthName = ((this.trainerName.length + 2) * 11) + 'px'
-
+      this.widthName = ((this.trainerName.length + 2) * 11) + 'px';
     }
-    this.inputName.nativeElement.value = this.trainerName
+    else {
+      alert("Некорректное имя тренера")
+      this.trainerName = this.storageService.getTrainerName(id)
+    }
   }
 
   addAltPrice(sessionId: string, dateTrainingSession: Date, altPrice: number, trainerId: string): void {
-    if (altPrice >= 0 && altPrice <= 10000 && /[0-9]/) {
+    if (altPrice && altPrice >= 0 && altPrice <= 10000 && /[0-9]/) {
       this.storageService.addAlternativePrice(sessionId, dateTrainingSession, +altPrice);
       this.sum = this.getTrainerIncome(trainerId, this.trainerSessions);
     }
+    else {
+      alert("Стоимость должа быть положительным числом в диапазоне от 0 до 10000.")
+    }
     this.focusAltPrice = false;
+
   }
 
   getTrainerIncome(trainerId: string, trainingSession: TrainingSession[]): number {

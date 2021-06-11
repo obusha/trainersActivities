@@ -3,19 +3,19 @@
     <a routerLink=''>К списку тренеров</a>
   </div>
   <div class="trainer-name">
-
     Тренер
     <input title="Изменить ФИО тренера"
-           [value]="trainerName"
+           [disabled]="loadDataFlag"
+           [(ngModel)]="trainerName"
            type="text"
            [style.width]="widthName"
-           #inputName
-           pattern="^[A-Za-zА-Яа-яЁё\s]+$"
+           pattern="^[A-Za-zА-Яа-яЁё\s\-]+$"
            name="inputTrainerName"
            autocomplete="off"
            maxlength="70"
-           (blur)="editTrainerName(id, $event.target.value)">
-
+           (keydown.enter)="$event.target.blur()"
+           (change)="editTrainerName(id, $event.target.value)"
+    />
   </div>
 
   <div>
@@ -24,6 +24,7 @@
            id="start"
            type="date"
            min="2000-01-01"
+           [disabled]="loadDataFlag"
            [max]="endDate | date: 'yyyy-MM-dd'"
            [ngModel]="startDate | date: 'yyyy-MM-dd'"
            (ngModelChange)="setStartDate($event)"
@@ -31,7 +32,7 @@
     по
     <input name="endDate"
            type="date"
-
+           [disabled]="loadDataFlag"
            [max]="dateNow | date: 'yyyy-MM-dd'"
            [min]="startDate | date: 'yyyy-MM-dd'"
            [ngModel]="endDate | date: 'yyyy-MM-dd'"
@@ -45,25 +46,14 @@
     <div class="trainer-price">
       Ставка в час:
       <input type="number" min="0" #inputPrice
+             [disabled]="loadDataFlag"
              [style.width]="widthPrice"
+
              autocomplete="off" max="10000" step="any"
              [value]="price.toFixed(2)"
+             (keydown.enter)="$event.target.blur()"
              (blur)="addPrice($event.target.value, id)"
       />
-<!--      <button class="session-price-value"-->
-<!--              title="Изменить ставку тренера"-->
-<!--              [hidden]="focusPrice"-->
-<!--              (click)="addFocusPrice()"-->
-<!--    >-->
-<!--        {{price.toFixed(2)}}-->
-<!--      </button>-->
-<!--      <div *ngIf="focusPrice" class="input-data-trainer">-->
-<!--        <input autofocus type="number" min="0" #inputPrice-->
-<!--               autocomplete="off" max="10000" step="any"-->
-<!--               [value]="price.toFixed(2)"-->
-<!--               (blur)="addPrice($event.target.value, id)"-->
-<!--        />-->
-<!--      </div>-->
     </div>
   </div>
   <div>
@@ -91,13 +81,6 @@
         <td>{{session.trainingTime}}</td>
         <td>{{session.numberOfVisits}}</td>
         <td class="session-price">
-<!--          <input type="number" min="0" #inputPrice-->
-<!--                 autocomplete="off"-->
-<!--                 [value]="session.altPrice ? session.altPrice : price * session.trainingTime / 60"-->
-<!--                 [id]="session.id"-->
-<!--                 (blur)="addAltPrice($event.target.id, session.date, $event.target.value, id)"-->
-<!--                 pattern="[0-9]"-->
-<!--          />-->
           <button class="session-price-value" title="Изменить стоимость тренировки"
                   [hidden]="focusAltPrice && idSession == session.id && dateSession == session.date"
                   (click)="addFocusAltPrice(session.id, session.date)"
@@ -108,8 +91,8 @@
                    autocomplete="off" max="10000"
                    [value]="session.altPrice ? session.altPrice.toFixed(2) : ((price * session.trainingTime / 60).toFixed(2))"
                    [id]="session.id"
+                   (keydown.enter)="$event.target.blur()"
                    (blur)="addAltPrice($event.target.id, session.date, $event.target.value, id)"
-
             />
           </div>
         </td>

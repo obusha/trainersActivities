@@ -89,7 +89,7 @@ export class StorageService {
 
   getTrainerPrice(trainerId: string): number {
     let trainerPrice = this.listTrainerPrice.filter((price: TrainerPrice) => price.trainerId == trainerId);
-      return trainerPrice[0].price;
+    return trainerPrice[0].price;
   }
 
   setNewNameTrainer(trainerId: string, newName: string): void {
@@ -99,6 +99,12 @@ export class StorageService {
       }
     })
   }
+
+  getTrainerName(trainerId: string): string {
+    let trainerNameList = this.getTrainerList()
+    return trainerNameList.filter((trainer: Trainer) => trainer.trainerId == trainerId)[0].trainerName
+  }
+
 
   findDatesWorkPeriod(startDate: Date, endDate: Date): string[] {
     let tempDate: Date = new Date(endDate);
@@ -113,17 +119,6 @@ export class StorageService {
     }
     return datesTraining;
   }
-
-  // getTrainerIncome(trainerId: string): number {
-  //   let sum: number = 0;
-  //   let price: number = this.getTrainerPrice(trainerId);
-  //   let trainerSessions: TrainingSession[] = this.getTrainerSessions(trainerId);
-  //   for (let session of trainerSessions) {
-  //     let session_price: number = session.altPrice ? session.altPrice : price;
-  //     sum += session.trainingTime / 60 * session_price;
-  //   }
-  //   return sum;
-  // }
 
   addAlternativePrice(trainingSessionId: string, dateTrainingSession: Date, altPrice: number): void {
     this.clubTrainingSession.trainingSessionList.forEach((trainingSession: TrainingSession) => {

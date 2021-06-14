@@ -132,7 +132,7 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
           this.sum = this.getTrainerIncome(this.id, this.trainerSessions);
           this.noDataFlag = (this.trainerSessions.length == 0);
           this.loadDataFlag = false;
-      }, error => {this.error = error.message})
+      }, error => {this.error = error.message; alert('Ошибка при получении данных с сервера! Обратитесь к Вашему системному администратору.')})
     }
     else
       if (trainerSessions.length == 0) {
@@ -144,7 +144,7 @@ export class TrainerDetailPageComponent implements OnInit, OnDestroy {
           this.price = this.storageService.getTrainerPrice(this.id);
           this.sum = this.getTrainerIncome(this.id, this.trainerSessions);
           this.loadDataFlag = false;
-        }, error => {this.error = error.message});
+        }, error => {this.error = error.message; alert('Ошибка при получении данных с сервера! Обратитесь к Вашему системному администратору.')});
       }
       else {
         this.trainerSessions = trainerSessions;
